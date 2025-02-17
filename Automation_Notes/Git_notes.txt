@@ -1,0 +1,31 @@
+Git Hub Commands
+
+Cmd commands.
+git config --global user.name "work-of-harsh"
+git config --global user.email hvsingh18@gmil.com               //Configure the author name and email address to be used with your                                                                 commits.
+
+
+cd "file path"
+	
+git init    //Create a new local repository. A .git file is created in the specified folder to be used by git for performing operations.              file  is connection between local repository and git repository.
+
+
+
+
+git remote add origin <server>          //If you haven't connected your local repository to a remote server, add the server to be able to                                        push to it. Done mostly first time.
+
+git add <filename>  or   git add *        //staging for commit.
+
+git commit -m "Commit message"           //commit
+
+git push origin master                 //push. Origin refers to repositiry where we have branches.
+
+git status                         //List the files you've updated and those you still need to add or commit, also gives details branch                                     present on.
+
+
+development in multiple branches makes sure main test cases in mater branch doest fail. Once development is ready, merge can be done.
+
+git checkout -b <branchname>            //Create a new branch and switch to it:
+
+git checkout <branchname>            //Switch from one branch to another:
+

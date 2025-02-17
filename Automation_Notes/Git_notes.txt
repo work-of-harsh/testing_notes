@@ -12,7 +12,7 @@ git init    //Create a new local repository. A .git file is created in the speci
 
 
 
-git remote add origin <server>          //If you haven't connected your local repository to a remote server, add the server to be able to                                        push to it. Done mostly first time.
+git remote add origin "link to repository"       //If you haven't connected your local repository to a remote server, add the server                                                   link to be able to push to it. Done mostly first time.
 
 git add <filename>  or   git add *        //staging for commit.
 

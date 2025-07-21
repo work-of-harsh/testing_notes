@@ -16,14 +16,14 @@ git remote add origin "link to repository"       //If you haven't connected your
 
 git add <filename>  or   git add *        //staging for commit.
 
-git commit -m "Commit message"           //commit
+git commit -m "Automation_Codes"           //commit
 // sometimes token required after commit.
 git push origin master                 //push. Origin refers to repositiry where we have branches.
 
 git status                         //List the files you've updated and those you still need to add or commit, also gives details branch                                     present on.
 
 
-development in multiple branches makes sure main test cases in mater branch doest fail. Once development is ready, merge can be done.
+development in multiple branches makes sure main test cases in master branch doest fail. Once development is ready, merge can be done.
 
 git checkout -b <branchname>            //Create a new branch and switch to it:
 

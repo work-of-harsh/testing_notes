@@ -31,3 +31,270 @@ git checkout <branchname>            //Switch from one branch to another:
 
 git merge <branchname>              //To merge a different branch into your active branch:
 
+
+| Command            | Meaning                                                  |
+| ------------------ | -------------------------------------------------------- |
+| `git add file.txt` | Stage one specific file                                  |
+| `git add .`        | Stage changes under the current directory                |
+| `git add *`        | Stage shell-matched files/directories, but not deletions |
+| `git add -A`       | Stage **all additions, modifications and deletions**     |
+
+
+# Git — `git add *` vs `git add -A`
+
+## 1. Basic Difference
+
+| Command      | What it does                                                 |
+| ------------ | ------------------------------------------------------------ |
+| `git add *`  | Stages files/directories matched by the shell's `*` wildcard |
+| `git add -A` | Stages **all changes** in the repository                     |
+
+The key difference is **deletions**.
+
+---
+
+## 2. `git add *`
+
+```bash
+git add *
+```
+
+The `*` is expanded by the **shell** to files and directories that currently exist.
+
+Example:
+
+```text
+project/
+├── app.py
+├── README.md
+└── src/
+    ├── main.py
+    └── utils.py
+```
+
+Running:
+
+```bash
+git add *
+```
+
+can stage:
+
+* Modified files ✅
+* New files ✅
+* Changes inside matched subdirectories ✅
+* Deleted files ❌
+
+### Important
+
+If a file has been deleted, it no longer exists for `*` to match.
+
+Example:
+
+```text
+old.txt → deleted
+new.txt → created
+```
+
+After:
+
+```bash
+git add *
+```
+
+typically:
+
+```text
+new.txt → staged ✅
+old.txt → deletion NOT staged ❌
+```
+
+---
+
+## 3. Does `git add *` stage changes inside subfolders?
+
+**Yes.**
+
+If `src/` is matched by `*`, Git recursively processes that directory.
+
+Example:
+
+```text
+project/
+└── src/
+    └── main.py  ← modified
+```
+
+From the project root:
+
+```bash
+git add *
+```
+
+will stage the modification to:
+
+```text
+src/main.py
+```
+
+However, deleted files are the important exception.
+
+---
+
+## 4. `git add -A`
+
+```bash
+git add -A
+```
+
+This tells Git to stage **all changes**:
+
+* New files ✅
+* Modified files ✅
+* Deleted files ✅
+* Renames/moves (both sides of the change) ✅
+* Changes throughout the repository ✅
+
+Think:
+
+> `git add -A` = "Stage everything Git sees as changed."
+
+---
+
+## 5. What happens with Rename/Move?
+
+Git internally doesn't really store a rename as a separate basic operation.
+
+Suppose:
+
+```text
+old.txt
+```
+
+is renamed:
+
+```bash
+mv old.txt new.txt
+```
+
+Git initially sees this conceptually as:
+
+```text
+old.txt → deleted
+new.txt → added
+```
+
+Git can later detect that these two changes represent a rename based on file similarity.
+
+### Using `git add -A`
+
+```bash
+git add -A
+```
+
+stages both:
+
+```text
+old.txt → deletion staged ✅
+new.txt → addition staged ✅
+```
+
+Git may then display:
+
+```text
+renamed: old.txt -> new.txt
+```
+
+### Using `git add *`
+
+```bash
+git add *
+```
+
+can stage the new file but leave the deletion of the old file unstaged.
+
+Therefore, `git add *` is **not reliable when deletions or moves/renames are involved**.
+
+---
+
+## 6. Complete Comparison
+
+| Change                       |               `git add *` | `git add -A` |
+| ---------------------------- | ------------------------: | -----------: |
+| Modify a file                |                         ✅ |            ✅ |
+| Create a new file            |                         ✅ |            ✅ |
+| Modify file inside subfolder |                         ✅ |            ✅ |
+| Create file inside subfolder |                         ✅ |            ✅ |
+| Delete a file                |                         ❌ |            ✅ |
+| Delete file inside subfolder |                         ❌ |            ✅ |
+| Rename/move a file           | ⚠️ May not stage deletion |            ✅ |
+| Stage all repository changes |            ❌ Not reliably |            ✅ |
+
+---
+
+## 7. `git add .`
+
+Another command worth knowing:
+
+```bash
+git add .
+```
+
+It stages changes under the **current directory**.
+
+Modern Git behavior makes `git add .` much closer to `git add -A` when run from the repository root, including deletions.
+
+But if you want to explicitly say:
+
+> "Stage everything in the repository."
+
+use:
+
+```bash
+git add -A
+```
+
+---
+
+## 8. Easy Mental Model
+
+### `git add *`
+
+```text
+* 
+↓
+Shell finds things that currently exist
+↓
+Git stages those paths
+```
+
+Therefore, a deleted file can be missed.
+
+### `git add -A`
+
+```text
+Git examines the repository
+↓
+Finds additions + modifications + deletions
+↓
+Stages everything
+```
+
+---
+git add .   → everything from HERE downward
+git add -A  → everything in the WHOLE repo
+git add *   → things matched by the shell's *
+
+| Feature                              | `git add *`               | `git add .`      | `git add -A`     |
+| ------------------------------------ | ------------------------- | ---------------- | ---------------- |
+| Modified files                       | ✅                         | ✅                | ✅                |
+| New files                            | ✅                         | ✅                | ✅                |
+| Deleted files                        | ❌ Can miss                | ✅                | ✅                |
+| Files in subfolders                  | ✅ If folder is matched    | ✅                | ✅                |
+| Goes downward from current directory | ✅                         | ✅                | Repository-wide* |
+| Goes upward to parent directories    | ❌                         | ❌                | ✅*               |
+| Hidden files (`.env`)                | ❌ `*` doesn't match them  | ✅                | ✅                |
+| Hidden folders (`.github/`)          | ❌ `*` doesn't match them  | ✅                | ✅                |
+| Renamed/moved files                  | ⚠️ Can miss deletion side | ✅                | ✅                |
+| Uses shell wildcard expansion        | ✅                         | ❌                | ❌                |
+| Best for "stage everything"          | ❌                         | ✅ from repo root | **✅**            |
